@@ -1,17 +1,31 @@
+# app/schemas/empresa.py
 from pydantic import BaseModel
 from datetime import date
+from typing import Optional
 
-class EmpresaBase(BaseModel):
+# Esquema para crear una empresa
+class EmpresaCreate(BaseModel):
     nombre_empresa: str
     nit: str
     sector: str
     fecha_convenio: date
 
-class EmpresaCreate(EmpresaBase):
-    pass
+    class Config:
+        orm_mode = True  # Habilita la conversión de objetos ORM a diccionarios
 
-class EmpresaOut(EmpresaBase):
+# Esquema para actualizar una empresa
+class EmpresaUpdate(BaseModel):
+    nombre_empresa: Optional[str] = None
+    nit: Optional[str] = None
+    sector: Optional[str] = None
+    fecha_convenio: Optional[date] = None
+
+    class Config:
+        orm_mode = True  # Habilita la conversión de objetos ORM a diccionarios
+
+# Esquema para la salida de datos de una empresa
+class EmpresaOut(EmpresaCreate):
     empresa_id: int
 
     class Config:
-        orm_mode = True
+        orm_mode = True  # Habilita la conversión de objetos ORM a diccionarios
