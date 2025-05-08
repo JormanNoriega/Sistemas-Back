@@ -18,19 +18,3 @@ class Egresado(Base):
     año_graduacion = Column(Date, nullable=False)
     empleabilidad = Column(Enum(EstadoEmpleabilidad), nullable=False)
     email = Column(String, nullable=False, unique=True)
-
-class EgresadoCreate(BaseModel):
-    nombre_completo: str
-    año_graduacion: date
-    empleabilidad: str
-    email: EmailStr
-
-    @validator('empleabilidad')
-    def normaliza_empleabilidad(cls, v):
-        v = v.strip().capitalize()
-        if v not in ["Empleado", "Desempleado", "Emprendedor"]:
-            raise ValueError("Input should be 'Empleado', 'Desempleado' or 'Emprendedor'")
-        return v
-
-    class Config:
-        from_attributes = True 

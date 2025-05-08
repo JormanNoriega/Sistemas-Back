@@ -19,8 +19,8 @@ async def upload_csv(file: UploadFile = File(...), db: Session = Depends(get_db)
 
     try:
         egresados_data = parse_csv_egresados(file.file)
-        print(egresados_data[0].keys())
-        print(df.columns)
+        # print(egresados_data[0].keys())
+        # print(df.columns)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
