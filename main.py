@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, Depends, HTTPException, status
+""" from fastapi import FastAPI, UploadFile, File, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from app.routers import egresado, empresa, convenio, relacion_internacional
@@ -91,4 +91,4 @@ async def upload_egresados_csv(
         }
     finally:
         if os.path.exists(temp_file.name):
-            os.unlink(temp_file.name) 
+            os.unlink(temp_file.name)  """
