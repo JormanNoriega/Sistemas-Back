@@ -11,7 +11,7 @@ class EmpresaCreate(BaseModel):
     fecha_convenio: date
 
     class Config:
-        orm_mode = True  # Habilita la conversión de objetos ORM a diccionarios
+        from_attributes = True  # Habilita la conversión de objetos ORM a diccionarios
 
 # Esquema para actualizar una empresa
 class EmpresaUpdate(BaseModel):
@@ -21,11 +21,11 @@ class EmpresaUpdate(BaseModel):
     fecha_convenio: Optional[date] = None
 
     class Config:
-        orm_mode = True  # Habilita la conversión de objetos ORM a diccionarios
+        from_attributes = True  # Habilita la conversión de objetos ORM a diccionarios
 
 # Esquema para la salida de datos de una empresa
 class EmpresaOut(EmpresaCreate):
     empresa_id: int
 
     class Config:
-        orm_mode = True  # Habilita la conversión de objetos ORM a diccionarios
+        from_attributes = True  # Habilita la conversión de objetos ORM a diccionarios
