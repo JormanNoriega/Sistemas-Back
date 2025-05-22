@@ -18,29 +18,69 @@ async def upload_csv(file: UploadFile = File(...), db: Session = Depends(get_db)
         raise HTTPException(status_code=400, detail="Solo se permiten archivos CSV")
 
     try:
-        egresados_data = parse_csv_egresados(file.file)
-        # print(egresados_data[0].keys())
-        # print(df.columns)
+        # Obtener egresados válidos y duplicados del CSV
+        egresados_validos, egresados_duplicados_csv = parse_csv_egresados(file.file)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
     egresados_db = []
-    for egresado in egresados_data:
-        # Convertir la fecha de string a objeto date
-        fecha_graduacion = datetime.strptime(egresado.get('año_graduacion'), '%Y-%m-%d').date()
-        
-        egresado_db = Egresado(
-            nombre_completo=egresado.get('nombre_completo'),
-            año_graduacion=fecha_graduacion,
-            empleabilidad=egresado.get('empleabilidad'),
-            email=egresado.get('email')
-        )
-        egresados_db.append(egresado_db)
+    registros_con_error = []
+    registros_duplicados_bd = []
+    
+    for egresado in egresados_validos:
+        try:
+            # Convertir la fecha de string a objeto date
+            fecha_graduacion = datetime.strptime(egresado.get('año_graduacion'), '%Y-%m-%d').date()
+            
+            # Verificar si ya existe un egresado con el mismo email o nombre
+            existing_egresado = db.query(Egresado).filter(
+                (Egresado.email == egresado.get('email')) | 
+                (Egresado.nombre_completo == egresado.get('nombre_completo'))
+            ).first()
+            
+            if existing_egresado:
+                # El egresado ya existe en la BD
+                registros_duplicados_bd.append({
+                    "nombre_completo": egresado.get('nombre_completo'),
+                    "email": egresado.get('email'),
+                    "error": f"Ya existe en la base de datos (ID: {existing_egresado.egresado_id})"
+                })
+            else:
+                # El egresado no existe, se puede agregar
+                egresado_db = Egresado(
+                    nombre_completo=egresado.get('nombre_completo'),
+                    año_graduacion=fecha_graduacion,
+                    empleabilidad=egresado.get('empleabilidad'),
+                    email=egresado.get('email')
+                )
+                egresados_db.append(egresado_db)
+                
+        except Exception as e:
+            # Si hay error en el procesamiento de algún egresado, lo agregamos al informe
+            registros_con_error.append({
+                "nombre_completo": egresado.get('nombre_completo'),
+                "email": egresado.get('email'),
+                "error": f"Error de formato: {str(e)}"
+            })
 
     try:
-        db.add_all(egresados_db)
-        db.commit()
-        return JSONResponse(content={"mensaje": f"{len(egresados_db)} egresados subidos correctamente"})
+        if egresados_db:
+            db.add_all(egresados_db)
+            db.commit()
+        
+        # Combinar todos los registros con problemas
+        todos_registros_problematicos = egresados_duplicados_csv + registros_duplicados_bd + registros_con_error
+        
+        return JSONResponse(content={
+            "mensaje": f"{len(egresados_db)} egresados subidos correctamente",
+            "total_registros": len(egresados_validos) + len(egresados_duplicados_csv),
+            "registros_validos": len(egresados_db),
+            "registros_duplicados_csv": len(egresados_duplicados_csv),
+            "registros_duplicados_bd": len(registros_duplicados_bd),
+            "registros_con_errores_formato": len(registros_con_error),
+            "total_problemas": len(todos_registros_problematicos),
+            "detalle_problemas": todos_registros_problematicos
+        })
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Error al guardar en BD: {str(e)}")

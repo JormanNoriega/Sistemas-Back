@@ -18,32 +18,75 @@ async def upload_csv(file: UploadFile = File(...), db: Session = Depends(get_db)
         raise HTTPException(status_code=400, detail="Solo se permiten archivos CSV")
 
     try:
-        relaciones_data = parse_csv_relaciones_internacionales(file.file)
+        # Obtener relaciones válidas y duplicadas del CSV
+        relaciones_validas, relaciones_duplicadas_csv = parse_csv_relaciones_internacionales(file.file)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
     relaciones_db = []
-    for relacion in relaciones_data:
-        fecha_inicio = datetime.strptime(relacion.get('fecha_inicio'), '%Y-%m-%d').date()
-        fecha_finalizacion = datetime.strptime(relacion.get('fecha_finalizacion'), '%Y-%m-%d').date()
-        relacion_db = RelacionInternacional(
-            nombre=relacion.get('nombre'),
-            pais=relacion.get('pais'),
-            institucion=relacion.get('institucion'),
-            tipo=relacion.get('tipo'),
-            fecha_inicio=fecha_inicio,
-            fecha_finalizacion=fecha_finalizacion,
-            descripcion=relacion.get('descripcion'),
-            participantes=relacion.get('participantes'),
-            resultados=relacion.get('resultados'),
-            estado=relacion.get('estado', EstadoRelacion.PENDING)
-        )
-        relaciones_db.append(relacion_db)
+    registros_con_error = []
+    registros_duplicados_bd = []
+    
+    for relacion in relaciones_validas:
+        try:
+            fecha_inicio = datetime.strptime(relacion.get('fecha_inicio'), '%Y-%m-%d').date()
+            fecha_finalizacion = datetime.strptime(relacion.get('fecha_finalizacion'), '%Y-%m-%d').date()
+            
+            # Verificar si ya existe una relación con el mismo nombre e institución
+            existing_relacion = db.query(RelacionInternacional).filter(
+                (RelacionInternacional.nombre == relacion.get('nombre')) & 
+                (RelacionInternacional.institucion == relacion.get('institucion'))
+            ).first()
+            
+            if existing_relacion:
+                # La relación ya existe en la BD
+                registros_duplicados_bd.append({
+                    "nombre": relacion.get('nombre'),
+                    "institucion": relacion.get('institucion'),
+                    "error": f"Ya existe en la base de datos (ID: {existing_relacion.relacion_id})"
+                })
+            else:
+                # La relación no existe, se puede agregar
+                relacion_db = RelacionInternacional(
+                    nombre=relacion.get('nombre'),
+                    pais=relacion.get('pais'),
+                    institucion=relacion.get('institucion'),
+                    tipo=relacion.get('tipo'),
+                    fecha_inicio=fecha_inicio,
+                    fecha_finalizacion=fecha_finalizacion,
+                    descripcion=relacion.get('descripcion'),
+                    participantes=relacion.get('participantes'),
+                    resultados=relacion.get('resultados'),
+                    estado=relacion.get('estado', EstadoRelacion.PENDING)
+                )
+                relaciones_db.append(relacion_db)
+                
+        except Exception as e:
+            # Si hay error en el procesamiento de alguna relación, la agregamos al informe
+            registros_con_error.append({
+                "nombre": relacion.get('nombre'),
+                "institucion": relacion.get('institucion'),
+                "error": f"Error de formato: {str(e)}"
+            })
 
     try:
-        db.add_all(relaciones_db)
-        db.commit()
-        return JSONResponse(content={"mensaje": f"{len(relaciones_db)} relaciones internacionales subidas correctamente"})
+        if relaciones_db:
+            db.add_all(relaciones_db)
+            db.commit()
+        
+        # Combinar todos los registros con problemas
+        todos_registros_problematicos = relaciones_duplicadas_csv + registros_duplicados_bd + registros_con_error
+        
+        return JSONResponse(content={
+            "mensaje": f"{len(relaciones_db)} relaciones internacionales subidas correctamente",
+            "total_registros": len(relaciones_validas) + len(relaciones_duplicadas_csv),
+            "registros_validos": len(relaciones_db),
+            "registros_duplicados_csv": len(relaciones_duplicadas_csv),
+            "registros_duplicados_bd": len(registros_duplicados_bd),
+            "registros_con_errores_formato": len(registros_con_error),
+            "total_problemas": len(todos_registros_problematicos),
+            "detalle_problemas": todos_registros_problematicos
+        })
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Error al guardar en BD: {str(e)}")

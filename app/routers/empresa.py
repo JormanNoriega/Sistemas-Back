@@ -7,35 +7,67 @@ from typing import List
 from app.database import get_db
 from app.models.empresa import Empresa
 from app.schemas.empresa import EmpresaCreate, EmpresaUpdate, EmpresaOut
-from app.utils.csv_parser import parse_csv  # Suponiendo que tienes un parser CSV en utils
+from app.utils.csv_parser import parse_csv_empresas  # Suponiendo que tienes un parser CSV en utils
 
 router = APIRouter(prefix="/api/empresas", tags=["Empresas"])
 
 # Subir empresas desde un archivo CSV
-@router.post("/")
+@router.post("/upload-csv")
 async def upload_csv(file: UploadFile = File(...), db: Session = Depends(get_db)):
     if not file.filename.endswith(".csv"):
         raise HTTPException(status_code=400, detail="Solo se permiten archivos CSV")
 
     try:
-        empresas_data = parse_csv(file.file)  # Se supone que parse_csv devuelve una lista de diccionarios
+        # Obtener empresas válidas y duplicadas del CSV
+        empresas_validas, empresas_duplicadas_csv = parse_csv_empresas(file.file)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+    # Filtrar empresas que ya existen en la base de datos
     empresas_db = []
-    for empresa in empresas_data:
-        empresa_db = Empresa(
-            nombre_empresa=empresa.get('nombre_empresa'),
-            nit=empresa.get('nit'),
-            sector=empresa.get('sector'),
-            fecha_convenio=empresa.get('fecha_convenio'),
-        )
-        empresas_db.append(empresa_db)
+    empresas_duplicadas_bd = []
+    
+    for empresa in empresas_validas:
+        # Verificar si ya existe una empresa con el mismo NIT o nombre
+        existing_empresa = db.query(Empresa).filter(
+            (Empresa.nit == empresa.get('nit')) | 
+            (Empresa.nombre_empresa == empresa.get('nombre_empresa'))
+        ).first()
+        
+        if existing_empresa:
+            # La empresa ya existe en la BD
+            empresas_duplicadas_bd.append({
+                "nombre_empresa": empresa.get('nombre_empresa'),
+                "nit": empresa.get('nit'),
+                "error": f"Ya existe en la base de datos (ID: {existing_empresa.empresa_id})"
+            })
+        else:
+            # La empresa no existe, se puede agregar
+            empresa_db = Empresa(
+                nombre_empresa=empresa.get('nombre_empresa'),
+                nit=empresa.get('nit'),
+                sector=empresa.get('sector'),
+                fecha_convenio=empresa.get('fecha_convenio'),
+            )
+            empresas_db.append(empresa_db)
 
     try:
-        db.add_all(empresas_db)
-        db.commit()
-        return JSONResponse(content={"mensaje": f"{len(empresas_db)} empresas subidas correctamente"})
+        if empresas_db:
+            db.add_all(empresas_db)
+            db.commit()
+        
+        # Combinar todos los duplicados para el informe
+        todos_duplicados = empresas_duplicadas_csv + empresas_duplicadas_bd
+        
+        return JSONResponse(content={
+            "mensaje": f"{len(empresas_db)} empresas subidas correctamente",
+            "total_registros": len(empresas_validas) + len(empresas_duplicadas_csv),
+            "registros_validos": len(empresas_db),
+            "registros_duplicados_csv": len(empresas_duplicadas_csv),
+            "registros_duplicados_bd": len(empresas_duplicadas_bd),
+            "total_duplicados": len(todos_duplicados),
+            "detalle_duplicados": todos_duplicados
+        })
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Error al guardar en BD: {str(e)}")

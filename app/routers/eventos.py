@@ -6,7 +6,7 @@ from typing import List
 from app.database import get_db
 from app.models.eventos import Eventos
 from app.schemas.eventos import EventoCreate, EventoUpdate, EventoOut
-from app.utils.csv_parser_j import parse_csv_eventos
+from app.utils.csv_parser import parse_csv_eventos
 
 router = APIRouter(prefix="/api/eventos", tags=["Eventos"])
 
@@ -17,25 +17,58 @@ async def upload_csv(file: UploadFile = File(...), db: Session = Depends(get_db)
         raise HTTPException(status_code=400, detail="Solo se permiten archivos CSV")
 
     try:
-        eventos_data = parse_csv_eventos(file.file)  # Se supone que parse_csv_eventos devuelve una lista de diccionarios
+        # Obtener eventos válidos y duplicados del CSV
+        eventos_validos, eventos_duplicados_csv = parse_csv_eventos(file.file)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
     eventos_db = []
-    for evento in eventos_data:
-        evento_db = Eventos(
-            tipo=evento.get('tipo'),
-            fecha=evento.get('fecha'),
-            asistentes=evento.get('asistentes'),
-            multimedia=evento.get('multimedia'),
-            descripcion=evento.get('descripcion'),
-        )
-        eventos_db.append(evento_db)
+    registros_duplicados_bd = []
+    
+    for evento in eventos_validos:
+        # Verificar si ya existe un evento con el mismo tipo, fecha y descripción
+        existing_evento = db.query(Eventos).filter(
+            (Eventos.tipo == evento.get('tipo')) & 
+            (Eventos.fecha == evento.get('fecha')) & 
+            (Eventos.descripcion == evento.get('descripcion'))
+        ).first()
+        
+        if existing_evento:
+            # El evento ya existe en la BD
+            registros_duplicados_bd.append({
+                "tipo": evento.get('tipo'),
+                "fecha": str(evento.get('fecha')),
+                "descripcion": evento.get('descripcion'),
+                "error": f"Ya existe en la base de datos (ID: {existing_evento.evento_id})"
+            })
+        else:
+            # El evento no existe, se puede agregar
+            evento_db = Eventos(
+                tipo=evento.get('tipo'),
+                fecha=evento.get('fecha'),
+                asistentes=evento.get('asistentes'),
+                multimedia=evento.get('multimedia'),
+                descripcion=evento.get('descripcion'),
+            )
+            eventos_db.append(evento_db)
 
     try:
-        db.add_all(eventos_db)
-        db.commit()
-        return JSONResponse(content={"mensaje": f"{len(eventos_db)} eventos subidos correctamente"})
+        if eventos_db:
+            db.add_all(eventos_db)
+            db.commit()
+        
+        # Combinar todos los registros con problemas
+        todos_registros_problematicos = eventos_duplicados_csv + registros_duplicados_bd
+        
+        return JSONResponse(content={
+            "mensaje": f"{len(eventos_db)} eventos subidos correctamente",
+            "total_registros": len(eventos_validos) + len(eventos_duplicados_csv),
+            "registros_validos": len(eventos_db),
+            "registros_duplicados_csv": len(eventos_duplicados_csv),
+            "registros_duplicados_bd": len(registros_duplicados_bd),
+            "total_problemas": len(todos_registros_problematicos),
+            "detalle_problemas": todos_registros_problematicos
+        })
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Error al guardar en BD: {str(e)}")

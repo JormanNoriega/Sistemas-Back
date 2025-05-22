@@ -6,10 +6,11 @@ from typing import List
 from app.database import get_db
 from app.models.estadisticas import Estadisticas
 from app.schemas.estadisticas import EstadisticaCreate, EstadisticaUpdate, EstadisticaOut
+from app.utils.csv_parser import parse_csv_estadisticas
 
 router = APIRouter(prefix="/api/estadisticas", tags=["Estadísticas"])
 
-# Subir estadísticas desde un archivo CSV (opcional, si se necesita)
+# Subir estadísticas desde un archivo CSV
 @router.post("/upload_csv")
 async def upload_csv(file: UploadFile = File(...), db: Session = Depends(get_db)):
     """
@@ -19,24 +20,55 @@ async def upload_csv(file: UploadFile = File(...), db: Session = Depends(get_db)
         raise HTTPException(status_code=400, detail="Solo se permiten archivos CSV")
 
     try:
-        # Leer el contenido del archivo CSV
-        import csv
-        content = file.file.read().decode("utf-8").splitlines()
-        reader = csv.DictReader(content)
+        # Obtener estadísticas válidas y duplicadas del CSV
+        estadisticas_validas, estadisticas_duplicadas_csv = parse_csv_estadisticas(file.file)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
-        estadisticas_db = []
-        for row in reader:
+    estadisticas_db = []
+    registros_duplicados_bd = []
+    
+    for estadistica in estadisticas_validas:
+        # Verificar si ya existe una estadística con la misma categoría y descripción
+        existing_estadistica = db.query(Estadisticas).filter(
+            (Estadisticas.categoria == estadistica.get('categoria')) & 
+            (Estadisticas.descripcion == estadistica.get('descripcion'))
+        ).first()
+        
+        if existing_estadistica:
+            # La estadística ya existe en la BD
+            registros_duplicados_bd.append({
+                "categoria": estadistica.get('categoria'),
+                "descripcion": estadistica.get('descripcion'),
+                "error": f"Ya existe en la base de datos (ID: {existing_estadistica.estadistica_id})"
+            })
+        else:
+            # La estadística no existe, se puede agregar
             estadistica_db = Estadisticas(
-                categoria=row.get("categoria"),
-                value=row.get("value"),
-                descripcion=row.get("descripcion"),
+                categoria=estadistica.get("categoria"),
+                value=estadistica.get("value"),
+                descripcion=estadistica.get("descripcion"),
             )
             estadisticas_db.append(estadistica_db)
 
-        # Guardar las estadísticas en la base de datos
-        db.add_all(estadisticas_db)
-        db.commit()
-        return JSONResponse(content={"mensaje": f"{len(estadisticas_db)} estadísticas subidas correctamente"})
+    try:
+        if estadisticas_db:
+            # Guardar las estadísticas en la base de datos
+            db.add_all(estadisticas_db)
+            db.commit()
+        
+        # Combinar todos los registros con problemas
+        todos_registros_problematicos = estadisticas_duplicadas_csv + registros_duplicados_bd
+        
+        return JSONResponse(content={
+            "mensaje": f"{len(estadisticas_db)} estadísticas subidas correctamente",
+            "total_registros": len(estadisticas_validas) + len(estadisticas_duplicadas_csv),
+            "registros_validos": len(estadisticas_db),
+            "registros_duplicados_csv": len(estadisticas_duplicadas_csv),
+            "registros_duplicados_bd": len(registros_duplicados_bd),
+            "total_problemas": len(todos_registros_problematicos),
+            "detalle_problemas": todos_registros_problematicos
+        })
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Error al procesar el archivo CSV: {str(e)}")

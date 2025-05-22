@@ -6,9 +6,9 @@ from typing import List
 from app.database import get_db
 from app.models.proyectos import Proyectos
 from app.schemas.proyectos import ProyectoCreate, ProyectoUpdate, ProyectoOut
-from app.utils.csv_parser_j import parse_csv_proyectos  
+from app.utils.csv_parser import parse_csv_proyectos  
 
-router = APIRouter(prefix="/api/proyectos", tags=["Proyectos"]) 
+router = APIRouter(prefix="/api/proyectos", tags=["Proyectos"])
 
 # Subir proyectos desde un archivo CSV
 @router.post("/upload_csv")
@@ -20,23 +20,54 @@ async def upload_csv(file: UploadFile = File(...), db: Session = Depends(get_db)
         raise HTTPException(status_code=400, detail="Solo se permiten archivos CSV")
 
     try:
-        proyectos_data = parse_csv_proyectos(file.file)  # Se supone que parse_csv devuelve una lista de diccionarios
+        # Obtener proyectos válidos y duplicados del CSV
+        proyectos_validos, proyectos_duplicados_csv = parse_csv_proyectos(file.file)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
     proyectos_db = []
-    for proyecto in proyectos_data:
-        proyecto_db = Proyectos(
-            titulo=proyecto.get('titulo'),
-            area_tematica=proyecto.get('area_tematica'),
-            fecha_inicio=proyecto.get('fecha_inicio'),
-        )
-        proyectos_db.append(proyecto_db)
+    registros_duplicados_bd = []
+    
+    for proyecto in proyectos_validos:
+        # Verificar si ya existe un proyecto con el mismo título y área temática
+        existing_proyecto = db.query(Proyectos).filter(
+            (Proyectos.titulo == proyecto.get('titulo')) & 
+            (Proyectos.area_tematica == proyecto.get('area_tematica'))
+        ).first()
+        
+        if existing_proyecto:
+            # El proyecto ya existe en la BD
+            registros_duplicados_bd.append({
+                "titulo": proyecto.get('titulo'),
+                "area_tematica": proyecto.get('area_tematica'),
+                "error": f"Ya existe en la base de datos (ID: {existing_proyecto.proyecto_id})"
+            })
+        else:
+            # El proyecto no existe, se puede agregar
+            proyecto_db = Proyectos(
+                titulo=proyecto.get('titulo'),
+                area_tematica=proyecto.get('area_tematica'),
+                fecha_inicio=proyecto.get('fecha_inicio'),
+            )
+            proyectos_db.append(proyecto_db)
 
     try:
-        db.add_all(proyectos_db)
-        db.commit()
-        return JSONResponse(content={"mensaje": f"{len(proyectos_db)} proyectos subidos correctamente"})
+        if proyectos_db:
+            db.add_all(proyectos_db)
+            db.commit()
+            
+        # Combinar todos los registros con problemas
+        todos_registros_problematicos = proyectos_duplicados_csv + registros_duplicados_bd
+        
+        return JSONResponse(content={
+            "mensaje": f"{len(proyectos_db)} proyectos subidos correctamente",
+            "total_registros": len(proyectos_validos) + len(proyectos_duplicados_csv),
+            "registros_validos": len(proyectos_db),
+            "registros_duplicados_csv": len(proyectos_duplicados_csv),
+            "registros_duplicados_bd": len(registros_duplicados_bd),
+            "total_problemas": len(todos_registros_problematicos),
+            "detalle_problemas": todos_registros_problematicos
+        })
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Error al guardar en BD: {str(e)}")
