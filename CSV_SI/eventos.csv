@@ -1,0 +1,51 @@
+tipo,fecha,asistentes,multimedia,descripcion
+Charla,2024-04-10,120,https://example.com/evento1.jpg,Evento sobre innovación tecnológica
+Taller,2024-06-01,45,https://example.com/evento2.jpg,Capacitación en técnicas de ilustración digital
+Feria,2023-09-12,300,https://example.com/evento3.jpg,Exhibición de arte contemporáneo
+Seminario,2024-03-15,80,https://example.com/evento4.jpg,Análisis de tendencias globales 2024
+Charla,2024-05-22,60,https://example.com/evento5.jpg,Charlas inspiradoras con emprendedores
+Feria,2023-11-30,500,https://example.com/evento6.jpg,Feria de emprendimiento local
+Seminario,2024-07-18,250,https://example.com/evento7.jpg,Evento internacional de medicina
+Charla,2024-02-14,90,https://example.com/evento8.jpg,Encuentro de profesionales del sector
+Charla,2024-01-25,70,https://example.com/evento9.jpg,Presentación del nuevo producto X
+Seminario,2023-10-05,150,https://example.com/evento10.jpg,Evento sobre marketing digital
+Feria,2024-08-12,110,https://example.com/evento11.jpg,Presentación de startups tecnológicas
+Feria,2023-12-20,800,https://example.com/evento12.jpg,Evento cultural anual
+Taller,2024-09-05,75,https://example.com/evento13.jpg,Competencia de programación
+Charla,2024-04-28,65,https://example.com/evento14.jpg,Panel de expertos en sostenibilidad
+Taller,2023-08-15,40,https://example.com/evento15.jpg,Taller práctico de fotografía
+Feria,2024-10-30,400,https://example.com/evento16.jpg,Exposición de nuevas tecnologías
+Seminario,2024-06-20,180,https://example.com/evento17.jpg,Evento de políticas públicas
+Taller,2023-07-12,55,https://example.com/evento18.jpg,Actividad deportiva para jóvenes
+Feria,2024-11-25,600,https://example.com/evento19.jpg,Evento musical benéfico
+Taller,2024-03-08,50,https://example.com/evento20.jpg,Clase magistral de cocina
+Feria,2023-09-28,120,https://example.com/evento21.jpg,Evento de negocios B2B
+Feria,2024-05-10,200,https://example.com/evento22.jpg,Evento de concientización social
+Feria,2024-02-05,350,https://example.com/evento23.jpg,Feria de universidades
+Feria,2023-10-18,150,https://example.com/evento24.jpg,Jornada médica gratuita
+Feria,2024-07-30,95,https://example.com/evento25.jpg,Demostraciones tecnológicas
+Feria,2024-08-12,110,https://example.com/evento11.jpg,Presentación de startups tecnológicas
+Seminario,2023-11-08,130,https://example.com/evento27.jpg,Evento de investigación científica
+Feria,2024-12-15,700,https://example.com/evento28.jpg,Fiesta anual de la comunidad
+Taller,2024-04-05,30,https://example.com/evento29.jpg,Taller creativo para niños
+Feria,2023-08-22,250,https://example.com/evento30.jpg,Exposición de mascotas
+Taller,2024-09-18,65,https://example.com/evento31.jpg,Concurso de diseño gráfico
+Charla,2024-03-25,45,https://example.com/evento32.jpg,Proyección y debate de película
+Feria,2023-10-30,500,https://example.com/evento33.jpg,Feria internacional del libro
+Feria,2024-06-10,300,https://example.com/evento34.jpg,Evento de lectura
+Feria,2024-05-15,180,https://example.com/evento35.jpg,Feria de comida internacional
+Feria,2023-12-05,400,https://example.com/evento36.jpg,Evento anual de la industria
+Taller,2024-02-20,60,https://example.com/evento37.jpg,Taller para pymes
+Feria,2024-11-08,350,https://example.com/evento38.jpg,Eventos de moda primavera-verano
+Charla,2023-09-15,75,https://example.com/evento39.jpg,Charla de superación personal
+Feria,2024-07-22,220,https://example.com/evento40.jpg,Feria de proyectos científicos
+Taller,2024-04-18,50,https://example.com/evento41.jpg,Evento de emprendedores
+Feria,2023-11-25,600,https://example.com/evento42.jpg,Exposición de automóviles
+Charla,2024-08-14,90,https://example.com/evento43.jpg,Avances en medicina
+Taller,2024-01-30,40,https://example.com/evento44.jpg,Taller de robótica para jóvenes
+Feria,2023-10-10,800,https://example.com/evento45.jpg,Festival de cine independiente
+Seminario,2024-05-05,70,https://example.com/evento46.jpg,Seminario para docentes
+Feria,2024-09-30,300,https://example.com/evento47.jpg,Exhibición de deportes extremos
+Taller,2024-04-05,30,https://example.com/evento29.jpg,Taller creativo para niños
+Feria,2024-03-12,200,https://example.com/evento49.jpg,Feria de productos artesanales
+Seminario,2024-10-20,450,https://example.com/evento50.jpg,Evento internacional de negocios

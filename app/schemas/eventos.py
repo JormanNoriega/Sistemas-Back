@@ -11,7 +11,7 @@ class EventoCreate(BaseModel):
     descripcion: str    
     
     class Config:
-        orm_mode = True  # Habilita la conversión de objetos ORM a diccionarios
+        from_attributes = True  # Habilita la conversión de objetos ORM a diccionarios
 
 # Esquema para actualizar un evento
 class EventoUpdate(BaseModel):
@@ -22,11 +22,11 @@ class EventoUpdate(BaseModel):
     descripcion: Optional[str] = None
 
     class Config:
-        orm_mode = True  # Habilita la conversión de objetos ORM a diccionarios        
+        from_attributes = True  # Habilita la conversión de objetos ORM a diccionarios        
 
 # Esquema para la salida de datos de un evento
 class EventoOut(EventoCreate):
     evento_id: int
 
     class Config:
-        orm_mode = True  # Habilita la conversión de objetos ORM a diccionarios        
+        from_attributes = True  # Habilita la conversión de objetos ORM a diccionarios        

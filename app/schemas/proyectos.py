@@ -9,7 +9,7 @@ class ProyectoCreate(BaseModel):
     fecha_inicio: date
     
     class Config:
-        orm_mode = True  # Habilita la conversión de objetos ORM a diccionarios
+        from_attributes = True  # Habilita la conversión de objetos ORM a diccionarios
         
 # Esquema para actualizar un proyecto
 class ProyectoUpdate(BaseModel):
@@ -18,11 +18,11 @@ class ProyectoUpdate(BaseModel):
     fecha_inicio: Optional[date] = None
 
     class Config:
-        orm_mode = True  # Habilita la conversión de objetos ORM a diccionarios
+        from_attributes = True  # Habilita la conversión de objetos ORM a diccionarios
 
 # Esquema para la salida de datos de un proyecto       
 class ProyectoOut(ProyectoCreate):
     proyecto_id: int
 
     class Config:
-        orm_mode = True  # Habilita la conversión de objetos ORM a diccionarios        
+        from_attributes = True  # Habilita la conversión de objetos ORM a diccionarios        

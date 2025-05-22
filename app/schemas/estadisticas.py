@@ -8,7 +8,7 @@ class EstadisticaCreate(BaseModel):
     descripcion: str
 
     class Config:
-        orm_mode = True  # Habilita la conversión de objetos ORM a diccionarios
+        from_attributes = True  # Habilita la conversión de objetos ORM a diccionarios
         
 # Esquema para actualizar una estadística
 class EstadisticaUpdate(BaseModel):
@@ -17,11 +17,11 @@ class EstadisticaUpdate(BaseModel):
     descripcion: Optional[str] = None
 
     class Config:
-        orm_mode = True  # Habilita la conversión de objetos ORM a diccionarios
+        from_attributes = True  # Habilita la conversión de objetos ORM a diccionarios
         
 # Esquema para la salida de datos de una estadística
 class EstadisticaOut(EstadisticaCreate):
     estadistica_id: int
 
     class Config:
-        orm_mode = True  # Habilita la conversión de objetos ORM a diccionarios
+        from_attributes = True  # Habilita la conversión de objetos ORM a diccionarios
