@@ -22,12 +22,23 @@ async def procesar_csv_convenios(file : UploadFile, db : Session):
 
     for convenio in convenios_validos:
         try:
-            fecha_firma = datetime.strptime(convenio.get('fecha_firma'), '%Y-%m-%d').date()
+            fecha = datetime.strptime(convenio.get('fecha'), '%Y-%m-%d').date()
             fecha_vencimiento = datetime.strptime(convenio.get('fecha_vencimiento'), '%Y-%m-%d').date()
 
+            # Verificar primero si la empresa existe
+            from app.models.empresa import Empresa
+            empresa = db.query(Empresa).filter(Empresa.empresa_id == convenio.get('compania_id')).first()
+            if not empresa:
+                registros_con_error.append({
+                    "compania_id": convenio.get('compania_id'),
+                    "titulo_compania": convenio.get('titulo_compania'),
+                    "error": f"La empresa con ID {convenio.get('compania_id')} no existe en la base de datos"
+                })
+                continue
+            
             existing_convenio = db.query(Convenio).filter(
-                (Convenio.compañia_id == convenio.get('compania_id')) &
-                (Convenio.titulo_compañia == convenio.get('titulo_compania'))
+                (Convenio.compania_id == convenio.get('compania_id')) &
+                (Convenio.titulo_compania == convenio.get('titulo_compania'))
             ).first()
 
             if existing_convenio:
@@ -38,12 +49,12 @@ async def procesar_csv_convenios(file : UploadFile, db : Session):
                 })
             else:
                 convenio_db = Convenio(
-                    compañia_id=convenio.get('compania_id'),
-                    titulo_compañia=convenio.get('titulo_compania'),
-                    tipo_convenio=convenio.get('tipo_de_convenio'),
+                    compania_id=convenio.get('compania_id'),
+                    titulo_compania=convenio.get('titulo_compania'),
+                    tipo_de_convenio=convenio.get('tipo_de_convenio'),
                     descripcion=convenio.get('descripcion'),
                     beneficios=convenio.get('beneficios'),
-                    fecha=fecha_firma,
+                    fecha=fecha,
                     fecha_vencimiento=fecha_vencimiento,
                     estatus=convenio.get('estatus', EstatusConvenio.PENDING)
                 )
@@ -79,11 +90,20 @@ async def procesar_csv_convenios(file : UploadFile, db : Session):
         if isinstance(e.orig, psycopg2.errors.ForeignKeyViolation):
             raise HTTPException(
                 status_code=400,
-                detail="Error: La compañía asociada al convenio no existe en la base de datos."
+                detail="Error: La compania asociada al convenio no existe en la base de datos."
             )
         raise HTTPException(status_code=500, detail=f"Error al guardar en BD: {str(e)}")
 
 def crear_convenio(convenio: ConvenioCreate, db: Session) -> Convenio:
+    # Verificar si la empresa existe
+    from app.models.empresa import Empresa
+    empresa = db.query(Empresa).filter(Empresa.empresa_id == convenio.compania_id).first()
+    if not empresa:
+        raise HTTPException(
+            status_code=404,
+            detail=f"La empresa con ID {convenio.compania_id} no existe en la base de datos"
+        )
+        
     new_convenio = Convenio(**convenio.dict())
 
     try:
@@ -123,4 +143,12 @@ def obtener_convenios_por_estatus(estatus: EstatusConvenio, db: Session) -> List
     return db.query(Convenio).filter(Convenio.estatus == estatus).all()
 
 def obtener_convenios_por_compania(compania_id: int, db: Session) -> List[Convenio]:
+    # Verificar si la empresa existe
+    from app.models.empresa import Empresa
+    empresa = db.query(Empresa).filter(Empresa.empresa_id == compania_id).first()
+    if not empresa:
+        raise HTTPException(
+            status_code=404,
+            detail=f"La empresa con ID {compania_id} no existe en la base de datos"
+        )
     return db.query(Convenio).filter(Convenio.compania_id == compania_id).all()

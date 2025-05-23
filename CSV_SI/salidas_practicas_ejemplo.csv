@@ -1,0 +1,12 @@
+fecha_salida,lugar_destino,responsable,cantidad_estudiantes,hora_salida,hora_regreso,observaciones
+2023-06-15,Parque Tecnológico de Sogamoso,Juan Pérez,25,08:30,16:00,Visita técnica al área de desarrollo de software
+2023-07-20,Empresa XYZ - Bogotá,Ana Gómez,18,07:00,19:00,Conferencia sobre Inteligencia Artificial
+2023-08-10,Centro de Innovación SENA,Carlos Martínez,30,09:00,13:00,Taller práctico de robótica
+2023-09-05,Universidad Nacional - Sede Bogotá,Laura Rodríguez,22,08:00,17:30,Congreso de Ingeniería
+2023-10-12,Microsoft Colombia,Pedro Sánchez,15,10:00,15:00,Demostración de Azure y tecnologías cloud
+2023-11-08,Parque industrial de Duitama,María Jiménez,28,07:30,18:00,Recorrido por plantas de producción
+2023-12-03,Google Colombia,Sofía Torres,20,09:30,16:30,Workshop de desarrollo web
+2024-02-14,IBM Colombia,Daniel Vargas,12,08:45,17:15,Prácticas de ciberseguridad
+2024-03-22,Centro de Desarrollo Tecnológico,Elena Castro,35,08:00,14:00,Exposición de proyectos de innovación
+2024-04-18,Oracle Colombia,Roberto Díaz,17,10:30,18:00,Conferencia sobre bases de datos
+2023-06-15,Parque Tecnológico de Sogamoso,Juan Pérez,25,08:30,16:00,Visita duplicada para pruebas

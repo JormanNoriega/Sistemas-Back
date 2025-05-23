@@ -10,7 +10,7 @@ class ConvenioCreate(BaseModel):
     tipo_de_convenio: str
     descripcion: str
     beneficios: str
-    fecha_firma: date
+    fecha: date
     fecha_vencimiento: date
     estatus: EstatusConvenio = EstatusConvenio.PENDING
 
@@ -24,7 +24,7 @@ class ConvenioUpdate(BaseModel):
     tipo_de_convenio: Optional[str] = None
     descripcion: Optional[str] = None
     beneficios: Optional[str] = None
-    fecha_firma: Optional[date] = None
+    fecha: Optional[date] = None
     fecha_vencimiento: Optional[date] = None
     estatus: Optional[EstatusConvenio] = None
 

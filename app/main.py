@@ -1,15 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import empresa, estadisticas, eventos, proyectos, convenio, egresado, relacion_internacional
+from app.routers import empresa, estadisticas, eventos, proyectos, convenio, egresado, relacion_internacional, impacto_social, salida_a_practicas
 from app.database import Base, engine
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Sistema de Gestión",
-    description="API para el sistema de gestión de egresados, empresas, convenios y relaciones internacionales",
-    version="1.0.0"
-)
+    description="API para el sistema de gestión de egresados, empresas, convenios, relaciones internacionales e impacto social",
+    version="1.0.0")
 
 # Configurar CORS
 app.add_middleware(
@@ -27,3 +26,5 @@ app.include_router(estadisticas.router)
 app.include_router(eventos.router)
 app.include_router(proyectos.router)
 app.include_router(relacion_internacional.router)
+app.include_router(impacto_social.router)
+app.include_router(salida_a_practicas.router)

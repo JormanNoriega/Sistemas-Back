@@ -1,51 +1,14 @@
-compania_id,titulo_compania,tipo_de_convenio,descripcion,beneficios,fecha_firma,fecha_vencimiento,estatus
-40,Oracle Academy,academic,Convenio académico con Oracle para acceso a plataformas educativas,Acceso a Oracle Learning Platform con 50 cursos certificados,2020-01-15,2025-01-15,active
-41,Cisco Networking Academy,academic,Programa de formación en redes y ciberseguridad,Acceso a materiales laboratorios virtuales y certificaciones CCNA,2019-05-20,2024-05-20,active
-42,Microsoft Learn,academic,Alianza para desarrollo de habilidades en tecnologías Microsoft,Acceso gratuito a Azure for Students y exámenes con descuento,2021-03-10,2026-03-10,active
-43,Google for Education,academic,Programa de herramientas educativas de Google,Licencias gratuitas de Google Workspace for Education,2022-02-28,2027-02-28,active
-44,IBM SkillsBuild,academic,Iniciativa de formación en inteligencia artificial y cloud,Recursos de aprendizaje y badges digitales en tecnologías IBM,2020-11-15,2025-11-15,active
-45,Amazon AWS Educate,academic,Programa educativo en computación en la nube,Credenciales AWS para estudiantes y contenido educativo,2023-01-05,2028-01-05,active
-46,Ministerio de Educación,government,Convenio marco de cooperación educativa,Financiamiento para proyectos de investigación e innovación docente,2021-07-12,2026-07-12,active
-47,Alcaldía Municipal,government,Apoyo a proyectos comunitarios,Implementación de programas sociales en zonas vulnerables,2022-09-01,2025-09-01,active
-48,Red Nacional Universitaria,networking,Consorcio de instituciones de educación superior,Intercambio estudiantil y movilidad académica,2020-08-22,2025-08-22,active
-49,IEEE,research,Colaboración en proyectos de investigación,Acceso a publicaciones IEEE Xplore y eventos técnicos,2023-04-18,2028-04-18,active
-50,Universidad de Barcelona,international,Convenio de doble titulación,Programa conjunto en ingeniería con movilidad estudiantil,2021-10-05,2026-10-05,active
-51,SAP University Alliances,academic,Programa de formación en sistemas empresariales,Licencias SAP para fines educativos y casos de estudio,2019-12-10,2024-12-10,active
-52,Red Hat Academy,academic,Capacitación en tecnologías open source,Acceso a plataforma de aprendizaje y certificaciones RHCSA,2022-06-15,2027-06-15,active
-53,Ministerio de Ciencia,government,Financiamiento proyectos STEM,Becas para investigación en ciencias de la computación,2023-03-01,2026-03-01,active
-54,Asociación de Ingenieros,networking,Programa de mentoría profesional,Vinculación estudiantes con profesionales para orientación vocacional,2021-09-20,2024-09-20,active
-55,Universidad de Tokyo,international,Intercambio académico y cultural,Estancias de investigación para estudiantes de posgrado,2020-04-05,2025-04-05,active
-56,VMware IT Academy,academic,Programa de formación en virtualización,Licencias de software y materiales para laboratorios,2022-11-30,2027-11-30,active
-57,Autodesk Design Academy,academic,Licencias para diseño e ingeniería,Acceso gratuito a software Autodesk para estudiantes,2023-02-14,2026-02-14,active
-58,Cluster Tecnológico,networking,Participación en ecosistema de innovación,Eventos de networking y oportunidades de colaboración,2022-08-08,2025-08-08,active
-59,Universidad Nacional,research,Proyectos conjuntos de investigación,Publicaciones científicas colaborativas y seminarios,2020-10-12,2025-10-12,active
-60,British Council,international,Programa de inglés académico,Becas para certificación IELTS y talleres,2023-07-01,2026-07-01,active
-61,Tableau Academic Program,academic,Licencias para visualización de datos,Acceso a Tableau Desktop y recursos de aprendizaje,2021-12-15,2024-12-15,active
-62,Instituto de Estadística,government,Cooperación en análisis de datos,Capacitaciones en herramientas estadísticas oficiales,2022-04-20,2025-04-20,active
-63,Asociación de Startups,networking,Programa de emprendimiento,Pasantías en startups y talleres de innovación,2020-07-30,2023-07-30,expired
-64,Universidad de Melbourne,international,Investigación en inteligencia artificial,Estancias posdoctorales y colaboración en papers,2023-01-10,2028-01-10,active
-65,MathWorks Academic,academic,Licencias MATLAB y Simulink,Herramientas para ingeniería y computación científica,2021-08-05,2026-08-05,active
-66,Ministerio de Trabajo,government,Programa de prácticas profesionales,Vinculación de estudiantes con empresas del sector,2022-03-15,2025-03-15,active
-67,Red de Parques Tecnológicos,networking,Acceso a instalaciones,Laboratorios especializados para proyectos estudiantiles,2020-09-18,2025-09-18,active
-68,Sociedad de Científicos,research,Participación en congresos,Presentación de trabajos estudiantiles en eventos nacionales,2023-05-22,2026-05-22,active
-69,DAAD Alemania,international,Becas de posgrado,Financiamiento para maestrías en universidades alemanas,2021-11-30,2024-11-30,active
-70,Unity Academic Alliance,academic,Licencias para desarrollo de juegos,Acceso a Unity Pro y recursos de aprendizaje,2022-07-07,2027-07-07,active
-71,Instituto de Energía,government,Proyectos sostenibles,Investigación conjunta en energías renovables,2020-12-10,2023-12-10,expired
-72,Cámara de Comercio,networking,Feria laboral anual,Contacto directo con empresas reclutadoras,2023-04-05,2026-04-05,active
-73,Universidad de Toronto,international,Movilidad estudiantil,Programa de intercambio semestral,2021-06-20,2024-06-20,active
-74,Adobe Creative Campus,academic,Licencias Creative Cloud,Acceso a herramientas Adobe para diseño digital,2022-09-12,2027-09-12,active
-75,Secretaría de Cultura,government,Proyectos digitales culturales,Desarrollo de aplicaciones para patrimonio cultural,2020-05-25,2025-05-25,active
-76,Asociación de Mujeres STEM,networking,Mentoría para mujeres,Orientación profesional en carreras tecnológicas,2023-03-08,2026-03-08,active
-77,Instituto Max Planck,research,Colaboración en física cuántica,Estancias de investigación para docentes,2021-10-15,2024-10-15,active
-78,Embajada Francesa,international,Programa de francés técnico,Cursos especializados para ingeniería,2022-01-30,2025-01-30,active
-79,NVIDIA Deep Learning Institute,academic,Cursos en IA acelerada,Acceso a GPUs en la nube para investigación,2020-08-15,2025-08-15,active
-80,Ministerio de Salud,government,Telemedicina,Desarrollo de soluciones tecnológicas para salud pública,2023-06-10,2026-06-10,active
-81,Red de Incubadoras,networking,Programa de pre-incubación,Talleres y asesoría para emprendimientos tecnológicos,2021-04-05,2024-04-05,active
-82,Universidad de Singapur,international,Doble titulación en data science,Programa conjunto con movilidad internacional,2020-02-28,2025-02-28,active
-83,GitHub Campus Program,academic,Herramientas para desarrollo colaborativo,Acceso a GitHub Enterprise y recursos educativos,2023-01-15,2028-01-15,active
-84,Instituto de Innovación,government,Financiamiento prototipos,Fondos concursables para proyectos tecnológicos,2021-07-01,2024-07-01,active
-85,Cluster de Biotecnología,networking,Proyectos interdisciplinarios,Colaboración entre ingeniería y ciencias biológicas,2022-05-10,2025-05-10,active
-86,Sociedad de Astronomía,research,Telescopio remoto,Acceso a instalaciones astronómicas para proyectos,2020-10-30,2025-10-30,active
-87,Embajada Canadiense,international,Becas de investigación,Financiamiento para estancias en universidades canadienses,2023-02-15,2026-02-15,active
-88,Universidad de Harvard,international,Investigación conjunta en ciencias sociales,Programa de visitantes académicos y publicaciones colaborativas,2022-10-01,2027-10-01,active
-89,Intel AI Academy,academic,Programa de inteligencia artificial,Acceso a herramientas de desarrollo AI y capacitaciones especializadas,2021-05-15,2026-05-15,active
+compania_id,titulo_compania,tipo_de_convenio,descripcion,beneficios,fecha,fecha_vencimiento,estatus
+40,Convenio Marco con IBM,Marco,Convenio marco de colaboración con IBM para proyectos de investigación,Acceso a tecnologías IBM y capacitación,2023-05-15,2025-05-15,active
+45,Prácticas profesionales con Microsoft,Prácticas,Convenio para prácticas profesionales de estudiantes en Microsoft,Experiencia laboral y posibilidad de contratación,2023-06-10,2024-06-10,active
+50,Capacitación en Google Cloud,Capacitación,Programa de capacitación en tecnologías Google Cloud,Certificaciones gratuitas y acceso a plataforma,2023-08-20,2024-08-20,pending
+55,Intercambio académico Oracle,Académico,Intercambio de estudiantes y profesores con Oracle University,Experiencia internacional y becas,2023-09-01,2025-09-01,active
+60,Investigación conjunta con Amazon AWS,Investigación,Desarrollo de soluciones basadas en la nube con Amazon,Financiación de proyectos y publicaciones conjuntas,2022-11-15,2024-11-15,active
+65,Desarrollo de software con Meta,Desarrollo,Creación de aplicaciones en entornos de realidad aumentada,Mentorías y equipos de desarrollo,2023-02-25,2025-02-25,pending
+70,Inteligencia artificial con Tesla,Investigación,Aplicación de IA en sistemas autónomos,Acceso a laboratorios de Tesla y equipamiento,2023-04-10,2026-04-10,active
+75,Ciberseguridad con Cisco,Capacitación,Formación en protocolos de seguridad y networking,Material didáctico y certificaciones gratuitas,2023-03-15,2024-03-15,expired
+80,Análisis de datos con SAS,Académico,Uso de software SAS para análisis estadístico,Licencias de software y soporte técnico,2022-10-05,2024-10-05,pending
+85,Desarrollo móvil con Apple,Desarrollo,Creación de aplicaciones iOS y desarrollo en Swift,Dispositivos de prueba y revisión de código,2023-07-22,2025-07-22,active
+90,Robótica con Boston Dynamics,Investigación,Investigación en robótica y sistemas automáticos,Acceso a laboratorios y prototipos,2023-01-30,2026-01-30,active
+42,Sostenibilidad con Siemens,Sostenibilidad,Proyectos de energías renovables y eficiencia energética,Equipamiento para laboratorios y visitas técnicas,2023-06-18,2025-06-18,active
+47,Telecomunicaciones con AT&T,Infraestructura,Mejoramiento de infraestructura de telecomunicaciones,Becas para estudiantes y equipos de comunicación,2023-03-28,2025-03-28,pending

@@ -11,6 +11,8 @@ Este proyecto es un backend desarrollado con FastAPI para gestionar diversos asp
 - Gestión de eventos
 - Estadísticas institucionales
 - Relaciones internacionales
+- Impacto social
+- Salidas a prácticas
 
 El sistema permite importar datos masivamente desde archivos CSV y provee endpoints RESTful para la gestión individual de cada tipo de entidad.
 
@@ -63,9 +65,9 @@ Sistemas Back/
 ### Convenio
 
 - convenio_id (PK)
-- compañia_id (FK → Empresa)
-- titulo_compañia
-- tipo_convenio
+- compania_id (FK → Empresa)
+- titulo_compania
+- tipo_de_convenio
 - descripcion
 - beneficios
 - fecha
@@ -108,6 +110,28 @@ Sistemas Back/
 - participantes
 - resultados
 - estado (Enum: ACTIVE, EXPIRED, PENDING)
+
+### Impacto Social
+
+- id_impacto_social (PK)
+- nombre_actividad
+- fecha_realizacion
+- lugar
+- poblacion_beneficiada
+- responsable
+- descripcion
+- resultados
+
+### Salida a Prácticas
+
+- id_salida_practica (PK)
+- fecha_salida
+- lugar_destino
+- responsable
+- cantidad_estudiantes
+- hora_salida
+- hora_regreso
+- observaciones
 
 ## Características Principales
 
@@ -191,6 +215,23 @@ Cuerpo: Formulario con archivo CSV que contenga las columnas:
 - sector
 - fecha_convenio
 
+### Cargar convenios desde CSV
+
+```http
+POST /api/convenios/upload
+```
+
+Cuerpo: Formulario con archivo CSV que contenga las columnas:
+
+- compania_id (debe ser un ID válido de una empresa existente)
+- titulo_compania
+- tipo_de_convenio
+- descripcion
+- beneficios
+- fecha (formato YYYY-MM-DD)
+- fecha_vencimiento (formato YYYY-MM-DD)
+- estatus (valores aceptados: active, expired, pending)
+
 ### Crear un nuevo egresado
 
 ```http
@@ -208,6 +249,29 @@ Cuerpo JSON:
 }
 ```
 
+### Crear un nuevo convenio
+
+```http
+POST /api/convenios/
+```
+
+Cuerpo JSON:
+
+```json
+{
+  "compania_id": 40,
+  "titulo_compania": "Convenio con Empresa Tecnológica",
+  "tipo_de_convenio": "Prácticas profesionales",
+  "descripcion": "Convenio para prácticas de estudiantes en áreas de desarrollo de software",
+  "beneficios": "Experiencia laboral, posibilidad de contratación",
+  "fecha_firma": "2025-01-01",
+  "fecha_vencimiento": "2026-01-01",
+  "estatus": "active"
+}
+```
+
+> **Nota importante**: Al crear o actualizar convenios, asegúrate que el `compania_id` corresponda a una empresa existente en la base de datos.
+
 ## Implementación de Seguridad
 
 Actualmente, el proyecto permite conexiones desde cualquier origen mediante la configuración CORS. Para un entorno de producción, se recomienda:
@@ -216,12 +280,35 @@ Actualmente, el proyecto permite conexiones desde cualquier origen mediante la c
 2. Implementar autenticación (JWT, OAuth2)
 3. Agregar rate limiting para prevenir abusos
 
-## Mantenimiento y Desarrollo Futuro
+## Mejoras Recientes
 
-Para la extensión del sistema, se recomienda:
+Se han implementado las siguientes mejoras y correcciones en el sistema:
 
-1. Agregar tests automatizados
-2. Implementar un sistema de logging más robusto
-3. Agregar un sistema de respaldo de datos
-4. Desarrollar un panel de administración
-5. Implementar un sistema de notificaciones
+### 1. Corrección de inconsistencias en el modelo de Convenios
+
+- Se corrigió la inconsistencia entre el nombre de los campos en el código (`compania_id`) y en la base de datos (`compañia_id`)
+- Se estandarizó el uso de `compania_id` y `titulo_compania` sin la letra "ñ" para evitar problemas de codificación
+- Se cambió el campo `tipo_convenio` por `tipo_de_convenio` para mantener consistencia con el CSV
+
+### 2. Mejoras en la validación de datos
+
+- Validación previa a la inserción de convenios para verificar la existencia de empresas asociadas
+- Manejo de errores detallado para cada tipo de problema (duplicados, empresas inexistentes, errores de formato)
+- Categorización de errores para facilitar su solución
+
+### 3. Optimización del procesamiento de CSV
+
+- Normalización de nombres de columnas para mayor flexibilidad
+- Detección más robusta de duplicados en los CSV
+- Tolerancia a variaciones en los nombres de campos (CSV de egresados y relaciones internacionales)
+
+### 4. Archivos CSV de ejemplo actualizados
+
+- Se crearon archivos CSV de ejemplo que siguen correctamente la estructura requerida
+- Ejemplos con datos de prueba válidos para cada tipo de entidad
+
+### 5. Documentación
+
+- Actualización del README con los cambios realizados
+- Documentación de los formatos CSV requeridos
+

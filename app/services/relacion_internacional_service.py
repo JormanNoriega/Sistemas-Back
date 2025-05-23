@@ -19,12 +19,12 @@ async def procesar_csv_relaciones(file: UploadFile, db: Session):
 
     for relacion in relaciones_validas:
         try:
-            fecha_inicio = datetime.strptime(relacion.get('fecha_inicio'), '%Y-%m-%d').date()
-            fecha_finalizacion = datetime.strptime(relacion.get('fecha_finalizacion'), '%Y-%m-%d').date()
+            # Ya no necesitamos convertir las fechas porque parse_csv_relaciones_internacionales ya lo hace
             existing_relacion = db.query(RelacionInternacional).filter(
                 (RelacionInternacional.nombre == relacion.get('nombre')) &
                 (RelacionInternacional.institucion == relacion.get('institucion'))
             ).first()
+            
             if existing_relacion:
                 registros_duplicados_bd.append({
                     "nombre": relacion.get('nombre'),
@@ -32,24 +32,34 @@ async def procesar_csv_relaciones(file: UploadFile, db: Session):
                     "error": f"Ya existe en la base de datos (ID: {existing_relacion.relacion_id})"
                 })
             else:
+                # Validar el tipo de relación
+                tipo_relacion = relacion.get('tipo')
+                if tipo_relacion not in [item.value for item in TipoRelacion]:
+                    tipo_relacion = TipoRelacion.PROJECT
+                
+                # Validar el estado de la relación
+                estado_relacion = relacion.get('estado')
+                if estado_relacion not in [item.value for item in EstadoRelacion]:
+                    estado_relacion = EstadoRelacion.PENDING
+                    
                 relacion_db = RelacionInternacional(
                     nombre=relacion.get('nombre'),
                     pais=relacion.get('pais'),
                     institucion=relacion.get('institucion'),
-                    tipo=relacion.get('tipo'),
-                    fecha_inicio=fecha_inicio,
-                    fecha_finalizacion=fecha_finalizacion,
+                    tipo=tipo_relacion,
+                    fecha_inicio=relacion.get('fecha_inicio'),
+                    fecha_finalizacion=relacion.get('fecha_finalizacion'),
                     descripcion=relacion.get('descripcion'),
                     participantes=relacion.get('participantes'),
                     resultados=relacion.get('resultados'),
-                    estado=relacion.get('estado', EstadoRelacion.PENDING)
+                    estado=estado_relacion
                 )
                 relaciones_db.append(relacion_db)
         except Exception as e:
             registros_con_error.append({
                 "nombre": relacion.get('nombre'),
                 "institucion": relacion.get('institucion'),
-                "error": f"Error de formato: {str(e)}"
+                "error": f"Error al procesar: {str(e)}"
             })
 
     try:

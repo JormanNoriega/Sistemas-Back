@@ -54,16 +54,20 @@ def match_column(posibles, columnas):
                 return col
     return None
 
-def parse_csv_egresados(file):
+def parse_csv_egresados(file) -> tuple:
     df = pd.read_csv(file, encoding="utf-8-sig")
     print("Columnas recibidas:", df.columns)
+    
+    # Normalizar los nombres de las columnas (minúsculas, sin espacios)
+    df.columns = df.columns.str.strip().str.lower()
     columnas = list(df.columns)
+    
     # Definir las variantes aceptadas para cada campo
     campos = {
-        'nombre_completo': ['nombre_completo', 'nombre completo', 'nombre'],
-        'año_graduacion': ['año_graduacion', 'ano_graduacion', 'año de graduacion', 'ano de graduacion', 'año', 'ano'],
-        'empleabilidad': ['empleabilidad', 'empleo', 'estado_empleo'],
-        'email': ['email', 'correo', 'correo_electronico', 'e-mail', 'Email']
+        'nombre': ['nombre_completo', 'nombre completo', 'nombre', 'nombrecompleto'],
+        'año_graduacion': ['año_graduacion', 'ano_graduacion', 'año de graduacion', 'ano de graduacion', 'año', 'ano', 'fecha_graduacion', 'fechagraduacion'],
+        'estado_empleabilidad': ['empleabilidad', 'empleo', 'estado_empleo', 'estadoempleo', 'estado_empleabilidad', 'estadoempleabilidad'],
+        'email': ['email', 'correo', 'correo_electronico', 'e-mail', 'email', 'mail']
     }
     mapeo = {}
     for clave, variantes in campos.items():
@@ -71,33 +75,41 @@ def parse_csv_egresados(file):
         if not col:
             raise Exception(f"Falta la columna para '{clave}'. Encabezados recibidos: {columnas}")
         mapeo[clave] = col
-        
-    # Identificar duplicados por 'nombre_completo' y 'email'
-    duplicates = df.duplicated(subset=[mapeo['nombre_completo'], mapeo['email']], keep='first')
+          # Identificar duplicados por 'nombre' y 'email'
+    duplicates = df.duplicated(subset=[mapeo['nombre'], mapeo['email']], keep='first')
     duplicados_df = df[duplicates].copy()
     
     # Quedarnos solo con registros únicos
-    df_unicos = df.drop_duplicates(subset=[mapeo['nombre_completo'], mapeo['email']], keep='first')
+    df_unicos = df.drop_duplicates(subset=[mapeo['nombre'], mapeo['email']], keep='first')
     
     # Procesar los datos con los nombres internos correctos
     registros = []
     registros_duplicados = []
     
     for _, row in df_unicos.iterrows():
-        registro = {
-            'nombre_completo': str(row[mapeo['nombre_completo']]).strip(),
-            'año_graduacion': str(row[mapeo['año_graduacion']]).strip(),
-            'empleabilidad': str(row[mapeo['empleabilidad']]).strip(),
-            'email': str(row[mapeo['email']]).strip()
-        }
-        registros.append(registro)
+        try:
+            fecha_grad = datetime.strptime(str(row[mapeo['año_graduacion']]).strip(), "%Y-%m-%d").date()
+            registro = {
+                'nombre': str(row[mapeo['nombre']]).strip(),
+                'año_graduacion': str(fecha_grad),
+                'estado_empleabilidad': str(row[mapeo['estado_empleabilidad']]).strip(),
+                'email': str(row[mapeo['email']]).strip()
+            }
+            registros.append(registro)
+        except ValueError as e:
+            registro_error = {
+                'nombre': str(row[mapeo['nombre']]).strip(),
+                'email': str(row[mapeo['email']]).strip(),
+                'error': f"Error de formato en fecha: {str(e)}"
+            }
+            registros_duplicados.append(registro_error)
     
     # Procesar los duplicados para el informe
     for _, row in duplicados_df.iterrows():
         registro_duplicado = {
-            'nombre_completo': str(row[mapeo['nombre_completo']]).strip(),
+            'nombre': str(row[mapeo['nombre']]).strip(),
             'email': str(row[mapeo['email']]).strip(),
-            'error': "Registro duplicado"
+            'error': "Registro duplicado en CSV"
         }
         registros_duplicados.append(registro_duplicado)
     
@@ -105,7 +117,7 @@ def parse_csv_egresados(file):
 
 def parse_csv_convenios(file):
     df = pd.read_csv(file)
-    required_columns = {'compania_id', 'titulo_compania', 'tipo_de_convenio', 'descripcion', 'beneficios', 'fecha_firma', 'fecha_vencimiento', 'estatus'}
+    required_columns = {'compania_id', 'titulo_compania', 'tipo_de_convenio', 'descripcion', 'beneficios', 'fecha', 'fecha_vencimiento', 'estatus'}
     if not required_columns.issubset(set(df.columns)):
         raise Exception(f"El CSV debe contener las columnas: {required_columns}")
     
@@ -131,11 +143,16 @@ def parse_csv_convenios(file):
     
     return registros_validos, registros_duplicados
 
-def parse_csv_relaciones_internacionales(file):
-    df = pd.read_csv(file)
-    required_columns = {'nombre', 'pais', 'institucion', 'tipo', 'fecha_inicio', 'fecha_finalizacion', 'descripcion', 'participantes', 'resultados', 'estado'}
+def parse_csv_relaciones_internacionales(file) -> tuple:
+    df = pd.read_csv(file, encoding="utf-8-sig")
+    
+    # Normalizar los nombres de las columnas (minúsculas, sin espacios)
+    df.columns = df.columns.str.strip().str.lower()
+    
+    required_columns = {'nombre', 'pais', 'institucion', 'tipo', 'fecha_inicio', 'fecha_finalizacion', 
+                        'descripcion', 'participantes', 'resultados', 'estado'}
     if not required_columns.issubset(set(df.columns)):
-        raise Exception(f"El CSV debe contener las columnas: {required_columns}")
+        raise Exception(f"El CSV debe contener las columnas: {required_columns}. Columnas encontradas: {list(df.columns)}")
     
     # Identificar duplicados por 'nombre' e 'institucion'
     duplicates = df.duplicated(subset=['nombre', 'institucion'], keep='first')
@@ -144,16 +161,42 @@ def parse_csv_relaciones_internacionales(file):
     # Quedarnos solo con registros únicos
     df_unicos = df.drop_duplicates(subset=['nombre', 'institucion'], keep='first')
     
-    # Convertir registros únicos a diccionarios
-    registros_validos = df_unicos.to_dict(orient='records')
+    # Procesar los registros válidos
+    registros_validos = []
+    registros_duplicados = []
+    
+    for _, row in df_unicos.iterrows():
+        try:
+            fecha_inicio = datetime.strptime(str(row['fecha_inicio']).strip(), "%Y-%m-%d").date()
+            fecha_finalizacion = datetime.strptime(str(row['fecha_finalizacion']).strip(), "%Y-%m-%d").date()
+            
+            registro = {
+                'nombre': str(row['nombre']).strip(),
+                'pais': str(row['pais']).strip(),
+                'institucion': str(row['institucion']).strip(),
+                'tipo': str(row['tipo']).strip(),
+                'fecha_inicio': fecha_inicio,
+                'fecha_finalizacion': fecha_finalizacion,
+                'descripcion': str(row['descripcion']).strip(),
+                'participantes': int(row['participantes']) if not pd.isna(row['participantes']) else 0,
+                'resultados': str(row['resultados']).strip(),
+                'estado': str(row['estado']).strip()
+            }
+            registros_validos.append(registro)
+        except ValueError as e:
+            registro_duplicado = {
+                'nombre': str(row['nombre']).strip(),
+                'institucion': str(row['institucion']).strip(),
+                'error': f"Error de formato: {str(e)}"
+            }
+            registros_duplicados.append(registro_duplicado)
     
     # Crear informe de duplicados
-    registros_duplicados = []
     for _, row in duplicados_df.iterrows():
         registro_duplicado = {
-            'nombre': row['nombre'],
-            'institucion': row['institucion'],
-            'error': "Registro duplicado"
+            'nombre': str(row['nombre']).strip(),
+            'institucion': str(row['institucion']).strip(),
+            'error': "Registro duplicado en CSV"
         }
         registros_duplicados.append(registro_duplicado)
     
@@ -287,3 +330,116 @@ def parse_csv_estadisticas(file) -> tuple:
         })
     
     return estadisticas, registros_duplicados
+
+def parse_csv_impacto_social(file) -> tuple:
+    df = pd.read_csv(file, encoding="utf-8-sig")
+    df.columns = df.columns.str.strip().str.lower()
+
+    required_columns = {"titulo", "beneficiarios", "ubicacion", "fecha_inicio", "fecha_final", 
+                        "descripcion", "objetivos", "resultados", "participantes", "estado"}
+    if not required_columns.issubset(set(df.columns)):
+        raise ValueError(f"El CSV debe contener las columnas: {required_columns}")
+    
+    # Identificar duplicados por 'titulo' y 'ubicacion'
+    duplicates = df.duplicated(subset=["titulo", "ubicacion"], keep='first')
+    duplicados_df = df[duplicates].copy()
+    
+    # Quedarnos solo con registros únicos
+    df_unicos = df.drop_duplicates(subset=["titulo", "ubicacion"], keep='first')
+    
+    impactos_sociales = []
+    registros_con_error = []
+    
+    # Procesar los registros únicos
+    for _, row in df_unicos.iterrows():
+        try:
+            fecha_inicio = datetime.strptime(str(row["fecha_inicio"]).strip(), "%Y-%m-%d").date()
+            fecha_final = datetime.strptime(str(row["fecha_final"]).strip(), "%Y-%m-%d").date()
+            
+            impactos_sociales.append({
+                "titulo": str(row["titulo"]).strip(),
+                "beneficiarios": str(row["beneficiarios"]).strip(),
+                "ubicacion": str(row["ubicacion"]).strip(),
+                "fecha_inicio": fecha_inicio,
+                "fecha_final": fecha_final,
+                "descripcion": str(row["descripcion"]).strip(),
+                "objetivos": str(row["objetivos"]).strip(),
+                "resultados": str(row["resultados"]).strip(),
+                "participantes": str(row["participantes"]).strip(),
+                "estado": str(row["estado"]).strip()
+            })
+        except ValueError:
+            registros_con_error.append({
+                "titulo": str(row["titulo"]).strip(),
+                "ubicacion": str(row["ubicacion"]).strip(),
+                "error": f"Fecha inválida: {row['fecha_inicio']} o {row['fecha_final']}"
+            })
+    
+    # Agregar duplicados al informe de errores
+    for _, row in duplicados_df.iterrows():
+        registros_con_error.append({
+            "titulo": str(row["titulo"]).strip(),
+            "ubicacion": str(row["ubicacion"]).strip(),
+            "error": "Registro duplicado"
+        })
+    
+    return impactos_sociales, registros_con_error
+
+def parse_csv_salidas_practicas(file) -> tuple:
+    df = pd.read_csv(file, encoding="utf-8-sig")
+    df.columns = df.columns.str.strip().str.lower()
+
+    required_columns = {"fecha_salida", "lugar_destino", "responsable", "cantidad_estudiantes", 
+                        "hora_salida", "hora_regreso", "observaciones"}
+    if not required_columns.issubset(set(df.columns)):
+        raise ValueError(f"El CSV debe contener las columnas: {required_columns}")
+    
+    # Identificar duplicados por 'fecha_salida', 'lugar_destino' y 'hora_salida'
+    duplicates = df.duplicated(subset=["fecha_salida", "lugar_destino", "hora_salida"], keep='first')
+    duplicados_df = df[duplicates].copy()
+    
+    # Quedarnos solo con registros únicos
+    df_unicos = df.drop_duplicates(subset=["fecha_salida", "lugar_destino", "hora_salida"], keep='first')
+    
+    salidas_practicas = []
+    registros_con_error = []
+    
+    # Procesar los registros únicos
+    for _, row in df_unicos.iterrows():
+        try:
+            fecha_salida = datetime.strptime(str(row["fecha_salida"]).strip(), "%Y-%m-%d").date()
+            hora_salida = datetime.strptime(str(row["hora_salida"]).strip(), "%H:%M").time()
+            hora_regreso = datetime.strptime(str(row["hora_regreso"]).strip(), "%H:%M").time()
+            
+            salidas_practicas.append({
+                "fecha_salida": fecha_salida,
+                "lugar_destino": str(row["lugar_destino"]).strip(),
+                "responsable": str(row["responsable"]).strip(),
+                "cantidad_estudiantes": int(row["cantidad_estudiantes"]),
+                "hora_salida": hora_salida,
+                "hora_regreso": hora_regreso,
+                "observaciones": str(row["observaciones"]).strip() if not pd.isna(row["observaciones"]) else None
+            })
+        except ValueError as e:
+            registros_con_error.append({
+                "fecha_salida": str(row["fecha_salida"]),
+                "lugar_destino": str(row["lugar_destino"]),
+                "error": f"Error de formato: {str(e)}"
+            })
+        except TypeError as e:
+            registros_con_error.append({
+                "fecha_salida": str(row["fecha_salida"]),
+                "lugar_destino": str(row["lugar_destino"]),
+                "error": f"Error en el tipo de dato: {str(e)}"
+            })
+    
+    # Agregar duplicados al informe de errores
+    for _, row in duplicados_df.iterrows():
+        registros_con_error.append({
+            "fecha_salida": str(row["fecha_salida"]),
+            "lugar_destino": str(row["lugar_destino"]),
+            "hora_salida": str(row["hora_salida"]),
+            "error": "Registro duplicado"
+        })
+    
+    return salidas_practicas, registros_con_error

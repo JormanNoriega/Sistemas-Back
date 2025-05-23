@@ -1,4 +1,4 @@
-from app.models.egresado import Egresado
+from app.models.egresado import Egresado, EstadoEmpleabilidad
 from app.schemas.egresado import EgresadoCreate, EgresadoUpdate
 from app.utils.csv_parser import parse_csv_egresados
 from fastapi import HTTPException, UploadFile
@@ -19,30 +19,38 @@ async def procesar_csv_egresados(file: UploadFile, db: Session):
 
     for egresado in egresados_validos:
         try:
+            # Ya no necesitamos convertir la fecha porque parse_csv_egresados ya lo hace
             fecha_graduacion = datetime.strptime(egresado.get('año_graduacion'), '%Y-%m-%d').date()
+            
             existing = db.query(Egresado).filter(
-                (Egresado.nombre == egresado.get('nombre')) &
-                (Egresado.año_graduacion == fecha_graduacion)
+                (Egresado.nombre_completo == egresado.get('nombre')) &
+                (Egresado.email == egresado.get('email'))
             ).first()
+            
             if existing:
                 registros_duplicados_bd.append({
                     "nombre": egresado.get('nombre'),
-                    "año_graduacion": egresado.get('año_graduacion'),
+                    "email": egresado.get('email'),
                     "error": f"Ya existe en la base de datos (ID: {existing.egresado_id})"
                 })
             else:
+                # Convertir estado_empleabilidad a enum si es necesario
+                empleabilidad = egresado.get('estado_empleabilidad')
+                if empleabilidad not in [item.value for item in EstadoEmpleabilidad]:
+                    empleabilidad = EstadoEmpleabilidad.DESEMPLEADO
+                
                 egresado_db = Egresado(
-                    nombre=egresado.get('nombre'),
+                    nombre_completo=egresado.get('nombre'),
                     año_graduacion=fecha_graduacion,
-                    carrera=egresado.get('carrera'),
-                    estado_empleabilidad=egresado.get('estado_empleabilidad'),
+                    empleabilidad=empleabilidad,
                     email=egresado.get('email')
                 )
                 egresados_db.append(egresado_db)
         except Exception as e:
             registros_con_error.append({
-                "registro": egresado,
-                "error": str(e)
+                "nombre": egresado.get('nombre', 'Desconocido'),
+                "email": egresado.get('email', 'Desconocido'),
+                "error": f"Error al procesar: {str(e)}"
             })
 
     try:
