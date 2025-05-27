@@ -14,7 +14,7 @@ class SalidaPracticaCreate(BaseModel):
     observaciones: Optional[str] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Esquema para actualizar una salida a prácticas
 class SalidaPracticaUpdate(BaseModel):
@@ -27,11 +27,11 @@ class SalidaPracticaUpdate(BaseModel):
     observaciones: Optional[str] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Esquema para la salida de datos de una salida a prácticas
 class SalidaPracticaOut(SalidaPracticaCreate):
     id_salida_practica: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True

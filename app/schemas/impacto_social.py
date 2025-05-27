@@ -18,7 +18,7 @@ class ImpactoSocialCreate(BaseModel):
     estado: EstadoImpacto = EstadoImpacto.PENDING
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Esquema para actualizar un impacto social
 class ImpactoSocialUpdate(BaseModel):
@@ -34,11 +34,11 @@ class ImpactoSocialUpdate(BaseModel):
     estado: Optional[EstadoImpacto] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Esquema para la salida de datos de un impacto social
 class ImpactoSocialOut(ImpactoSocialCreate):
     impacto_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
