@@ -10,3 +10,6 @@ class Empresa(Base):
     nit = Column(String, nullable=False, unique=True)
     sector = Column(String, nullable=False)
     fecha_convenio = Column(Date, nullable=False)
+    
+    # Relación con los convenios
+    convenios = relationship("Convenio", back_populates="empresa")
