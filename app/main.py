@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import empresa, estadisticas, eventos, proyectos, convenio, egresado, relacion_internacional, impacto_social, salida_a_practicas
+from app.routers import empresa, estadisticas, eventos, proyectos, convenio, egresado, relacion_internacional, impacto_social, salida_a_practicas, publicaciones
 from app.database import Base, engine
 
 Base.metadata.create_all(bind=engine)
@@ -28,3 +28,4 @@ app.include_router(proyectos.router)
 app.include_router(relacion_internacional.router)
 app.include_router(impacto_social.router)
 app.include_router(salida_a_practicas.router)
+app.include_router(publicaciones.router)

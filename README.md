@@ -62,10 +62,18 @@ Sistemas Back/
 - empleabilidad (Enum: EMPLEADO, DESEMPLEADO, EMPRENDEDOR)
 - email (único)
 
+### Empresa Aliada
+
+- empresa_id (PK)
+- nombre_empresa (único)
+- nit (único)
+- sector
+- fecha_convenio
+
 ### Convenio
 
 - convenio_id (PK)
-- compania_id (FK → Empresa)
+- compania_id (FK → Empresa Aliada)
 - titulo_compania
 - tipo_de_convenio
 - descripcion
@@ -96,6 +104,16 @@ Sistemas Back/
 - categoria
 - value
 - descripcion
+
+### Publicaciones
+
+- publicacion_id (PK)
+- titulo
+- autores
+- area
+- fecha
+- enlace
+- tipo
 
 ### Relación Internacional
 
@@ -132,6 +150,16 @@ Sistemas Back/
 - hora_salida
 - hora_regreso
 - observaciones
+
+### Publicaciones
+
+- publicacion_id (PK)
+- titulo
+- autores
+- area
+- fecha
+- enlace
+- tipo
 
 ## Características Principales
 
@@ -232,6 +260,21 @@ Cuerpo: Formulario con archivo CSV que contenga las columnas:
 - fecha_vencimiento (formato YYYY-MM-DD)
 - estatus (valores aceptados: active, expired, pending)
 
+### Cargar publicaciones desde CSV
+
+```http
+POST /api/publicaciones/upload
+```
+
+Cuerpo: Formulario con archivo CSV que contenga las columnas:
+
+- titulo
+- autores (cuando hay múltiples autores, incluirlos entre comillas)
+- area
+- fecha (formato YYYY-MM-DD)
+- enlace
+- tipo
+
 ### Crear un nuevo egresado
 
 ```http
@@ -272,6 +315,59 @@ Cuerpo JSON:
 
 > **Nota importante**: Al crear o actualizar convenios, asegúrate que el `compania_id` corresponda a una empresa existente en la base de datos.
 
+### Crear una nueva publicación
+
+```http
+POST /api/publicaciones/
+```
+
+Cuerpo JSON:
+
+```json
+{
+  "titulo": "Inteligencia Artificial en la Educación Superior",
+  "autores": "Juan Pérez, María García",
+  "area": "IA",
+  "fecha": "2025-05-15",
+  "enlace": "https://ejemplo.com/publicacion123",
+  "tipo": "Artículo"
+}
+```
+
+### Cargar publicaciones desde CSV
+
+```http
+POST /api/publicaciones/upload
+```
+
+Cuerpo: Formulario con archivo CSV que contenga las columnas:
+
+- titulo
+- autores
+- area
+- fecha (formato YYYY-MM-DD)
+- enlace
+- tipo
+
+### Crear una nueva publicación
+
+```http
+POST /api/publicaciones/
+```
+
+Cuerpo JSON:
+
+```json
+{
+  "titulo": "Análisis de Big Data en empresas",
+  "autores": "Juan Pérez, Ana Ruiz",
+  "area": "IA",
+  "fecha": "2024-11-10",
+  "enlace": "https://revista.com/p1",
+  "tipo": "Artículo"
+}
+```
+
 ## Implementación de Seguridad
 
 Actualmente, el proyecto permite conexiones desde cualquier origen mediante la configuración CORS. Para un entorno de producción, se recomienda:
@@ -296,7 +392,13 @@ Se han implementado las siguientes mejoras y correcciones en el sistema:
 - Manejo de errores detallado para cada tipo de problema (duplicados, empresas inexistentes, errores de formato)
 - Categorización de errores para facilitar su solución
 
-### 3. Optimización del procesamiento de CSV
+### 3. Relación entre Empresas Aliadas y Convenios
+
+- Se actualizó la clave foránea en el modelo Convenio para que apunte a la nueva tabla `empresas_aliadas`
+- Se añadió una relación bidireccional usando `relationship` para facilitar el acceso a los datos relacionados
+- Se actualizó el esquema de salida de convenios para incluir información básica de la empresa relacionada
+
+### 4. Optimización del procesamiento de CSV
 
 - Normalización de nombres de columnas para mayor flexibilidad
 - Detección más robusta de duplicados en los CSV
@@ -311,4 +413,3 @@ Se han implementado las siguientes mejoras y correcciones en el sistema:
 
 - Actualización del README con los cambios realizados
 - Documentación de los formatos CSV requeridos
-

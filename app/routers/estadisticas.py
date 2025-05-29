@@ -12,7 +12,7 @@ from app.services.estadisticas_service import (
     eliminar_estadistica,
 )
 
-router = APIRouter(prefix="/api/estadisticas", tags=["Estadísticas"])
+router = APIRouter(prefix="/api/estadisticas", tags=["Estadística Upc"])
 
 @router.post("/upload_csv")
 async def upload_csv(file: UploadFile = File(...), db: Session = Depends(get_db)):

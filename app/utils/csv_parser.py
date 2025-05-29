@@ -443,3 +443,50 @@ def parse_csv_salidas_practicas(file) -> tuple:
         })
     
     return salidas_practicas, registros_con_error
+
+def parse_csv_publicaciones(file) -> tuple:
+    df = pd.read_csv(file, encoding="utf-8-sig")
+    df.columns = df.columns.str.strip().str.lower()
+
+    required_columns = {"titulo", "autores", "area", "fecha", "enlace", "tipo"}
+    if not required_columns.issubset(set(df.columns)):
+        raise ValueError(f"El CSV debe contener las columnas: {required_columns}")
+    
+    # Identificar duplicados por 'titulo' y 'autores'
+    duplicates = df.duplicated(subset=["titulo", "autores"], keep='first')
+    duplicados_df = df[duplicates].copy()
+    
+    # Quedarnos solo con registros únicos
+    df_unicos = df.drop_duplicates(subset=["titulo", "autores"], keep='first')
+    
+    publicaciones = []
+    registros_con_error = []
+    
+    # Procesar los registros únicos
+    for _, row in df_unicos.iterrows():
+        try:
+            fecha = datetime.strptime(str(row["fecha"]).strip(), "%Y-%m-%d").date()
+            publicaciones.append({
+                "titulo": str(row["titulo"]).strip(),
+                "autores": str(row["autores"]).strip(),
+                "area": str(row["area"]).strip(),
+                "fecha": fecha,
+                "enlace": str(row["enlace"]).strip() if not pd.isna(row["enlace"]) else "",
+                "tipo": str(row["tipo"]).strip()
+            })
+        except ValueError:
+            registros_con_error.append({
+                "titulo": str(row["titulo"]).strip(),
+                "autores": str(row["autores"]).strip(),
+                "error": f"Fecha inválida: {row['fecha']}"
+            })
+    
+    # Agregar duplicados al informe de errores
+    for _, row in duplicados_df.iterrows():
+        registros_con_error.append({
+            "titulo": str(row["titulo"]).strip(),
+            "autores": str(row["autores"]).strip(),
+            "error": "Registro duplicado"
+        })
+    
+    return publicaciones, registros_con_error

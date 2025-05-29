@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Date, ForeignKey, Enum
+from sqlalchemy.orm import relationship
 from app.database import Base
 import enum
 
@@ -11,7 +12,7 @@ class Convenio(Base):
     __tablename__ = "convenios"
 
     convenio_id = Column(Integer, primary_key=True, index=True)
-    compania_id = Column(Integer, ForeignKey("empresas.empresa_id"), nullable=False)
+    compania_id = Column(Integer, ForeignKey("empresas_aliadas.empresa_id"), nullable=False)
     titulo_compania = Column(String, nullable=False)
     tipo_de_convenio = Column(String, nullable=False)
     descripcion = Column(String, nullable=False)

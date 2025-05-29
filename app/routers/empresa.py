@@ -15,7 +15,7 @@ from app.services.empresa_service import (
     actualizar_empresa,
 )
 
-router = APIRouter(prefix="/api/empresas", tags=["Empresas"])
+router = APIRouter(prefix="/api/empresas", tags=["Empresas Aliadas"])
 
 # Subir empresas desde un archivo CSV
 @router.post("/upload-csv")

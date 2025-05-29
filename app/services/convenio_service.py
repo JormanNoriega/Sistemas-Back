@@ -26,7 +26,7 @@ async def procesar_csv_convenios(file : UploadFile, db : Session):
             fecha_vencimiento = datetime.strptime(convenio.get('fecha_vencimiento'), '%Y-%m-%d').date()
 
             # Verificar primero si la empresa existe
-            from app.models.empresa import Empresa
+            from app.models.empresas_aliadas import Empresa
             empresa = db.query(Empresa).filter(Empresa.empresa_id == convenio.get('compania_id')).first()
             if not empresa:
                 registros_con_error.append({
@@ -96,7 +96,7 @@ async def procesar_csv_convenios(file : UploadFile, db : Session):
 
 def crear_convenio(convenio: ConvenioCreate, db: Session) -> Convenio:
     # Verificar si la empresa existe
-    from app.models.empresa import Empresa
+    from app.models.empresas_aliadas import Empresa
     empresa = db.query(Empresa).filter(Empresa.empresa_id == convenio.compania_id).first()
     if not empresa:
         raise HTTPException(
@@ -144,7 +144,7 @@ def obtener_convenios_por_estatus(estatus: EstatusConvenio, db: Session) -> List
 
 def obtener_convenios_por_compania(compania_id: int, db: Session) -> List[Convenio]:
     # Verificar si la empresa existe
-    from app.models.empresa import Empresa
+    from app.models.empresas_aliadas import Empresa
     empresa = db.query(Empresa).filter(Empresa.empresa_id == compania_id).first()
     if not empresa:
         raise HTTPException(

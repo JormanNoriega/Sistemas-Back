@@ -1,4 +1,4 @@
-from app.models.empresa import Empresa
+from app.models.empresas_aliadas import Empresa
 from app.schemas.empresa import EmpresaCreate, EmpresaUpdate
 from app.utils.csv_parser import parse_csv_empresas
 from fastapi import HTTPException, UploadFile

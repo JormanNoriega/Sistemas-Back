@@ -1,4 +1,4 @@
-from app.models.estadisticas import Estadisticas
+from app.models.estadistica_upc import Estadisticas
 from app.schemas.estadisticas import EstadisticaCreate, EstadisticaUpdate
 from app.utils.csv_parser import parse_csv_estadisticas
 from fastapi import HTTPException, UploadFile

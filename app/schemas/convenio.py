@@ -3,6 +3,15 @@ from typing import Optional
 from datetime import date
 from app.models.convenio import EstatusConvenio
 
+# Esquema básico para información de empresa
+class EmpresaInfo(BaseModel):
+    empresa_id: int
+    nombre_empresa: str
+    sector: str
+
+    class Config:
+        from_attributes = True
+
 # Esquema para crear un convenio
 class ConvenioCreate(BaseModel):
     compania_id: int
@@ -34,6 +43,7 @@ class ConvenioUpdate(BaseModel):
 # Esquema para la salida de datos de un convenio
 class ConvenioOut(ConvenioCreate):
     convenio_id: int
+    empresa: Optional[EmpresaInfo] = None
 
     class Config:
-        from_attributes = True 
+        from_attributes = True
