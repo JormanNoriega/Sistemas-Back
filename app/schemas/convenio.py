@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 from datetime import date
-from app.models.convenio import EstatusConvenio
+from app.models.convenio import EstatusConvenio, TipoConvenio
 
 # Esquema básico para información de empresa
 class EmpresaInfo(BaseModel):
@@ -16,7 +16,7 @@ class EmpresaInfo(BaseModel):
 class ConvenioCreate(BaseModel):
     compania_id: int
     titulo_compania: str
-    tipo_de_convenio: str
+    tipo_de_convenio: TipoConvenio
     descripcion: str
     beneficios: str
     fecha: date
@@ -30,7 +30,7 @@ class ConvenioCreate(BaseModel):
 class ConvenioUpdate(BaseModel):
     compania_id: Optional[int] = None
     titulo_compania: Optional[str] = None
-    tipo_de_convenio: Optional[str] = None
+    tipo_de_convenio: Optional[TipoConvenio] = None
     descripcion: Optional[str] = None
     beneficios: Optional[str] = None
     fecha: Optional[date] = None
